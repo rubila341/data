@@ -1,0 +1,84 @@
+use world;
+-- Выведите список стран с языками, на которых в них говорят. --
+SELECT
+    country.Name AS country,
+    countrylanguage.language AS language
+FROM
+    country
+JOIN
+    countrylanguage ON country.Code = countrylanguage.CountryCode
+ORDER BY
+    country.Name, countrylanguage.language;
+
+-- Выведите список городов с их населением и названием стран--
+
+SELECT
+    city.Name AS city,
+    city.Population AS population,
+    country.Name AS country
+FROM
+    city
+JOIN
+    country ON city.CountryCode = country.Code
+ORDER BY
+    country.Name, city.Name;
+    
+  -- Выведите список городов в South Africa--  
+    SELECT
+    city.Name AS city,
+    city.Population AS population
+FROM
+    city
+JOIN
+    country ON city.CountryCode = country.Code
+WHERE
+    country.Name = 'South Africa'
+ORDER BY
+    city.Name;
+    
+    -- Выведите список стран с названиями столиц. Подсказка: в таблице country есть поле--
+    SELECT
+    country.Name AS country,
+    city.Name AS capital
+FROM
+    country
+JOIN
+    city ON country.Capital = city.ID
+ORDER BY
+    country.Name;
+    
+-- Измените запрос 4 таким образом, чтобы выводилось население в столице. --
+SELECT
+    country.Name AS country,
+    city.Name AS capital,
+    city.Population AS population
+FROM
+    country
+JOIN
+    city ON country.Capital = city.ID
+ORDER BY
+    country.Name;
+    
+  -- Напишите запрос, который возвращает название столицы United States--
+  SELECT
+    city.Name AS capital
+FROM
+    country
+JOIN
+    city ON country.Capital = city.ID
+WHERE
+    country.Name = 'United States';
+    
+    
+USE hr;
+
+    
+    SELECT
+    locations.city AS city,
+    countries.country_name AS country
+FROM
+    locations
+JOIN
+    countries ON locations.country_id = countries.country_id
+ORDER BY
+    locations.city;
