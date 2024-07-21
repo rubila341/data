@@ -1,0 +1,42 @@
+use hr;
+-- Выведите количество сотрудников в базе --
+SELECT COUNT(*) AS number_of_employees
+FROM employees;
+
+-- Выведите количество департаментов (отделов) в базе--
+SELECT COUNT(*) AS number_of_departments
+FROM departments;
+
+-- Выведите среднее население в городах Индии (таблица City, код Индии - IND)--
+use world;
+
+SELECT AVG(Population) AS average_population
+FROM city
+WHERE CountryCode = 'IND';
+
+-- Выведите минимальное население в индийском городе и максимальное.--
+SELECT 
+    MIN(Population) AS min_population,
+    MAX(Population) AS max_population
+FROM 
+    city
+WHERE 
+    CountryCode = 'IND';
+    
+-- Выведите самую большую площадь территории--
+SELECT MAX(SurfaceArea) AS largest_area
+FROM country;
+
+-- Выведите среднюю продолжительность жизни по странам. --
+SELECT 
+    Name AS country_name, 
+    AVG(LifeExpectancy) AS average_liсрfe_expectancy
+FROM 
+    country
+GROUP BY 
+    Name;
+    
+    -- Найдите самый населенный город (подсказка: использовать подзапросы)-- 
+    SELECT Name, Population
+FROM city
+WHERE Population = (SELECT MAX(Population) FROM city);
