@@ -1,0 +1,59 @@
+use world;
+-- Вывести население в каждой стране. Результат содержит два поля: CountryCode, sum(Population). Запрос по таблице city.--
+
+SELECT CountryCode, SUM(Population) AS total_population
+FROM city
+GROUP BY CountryCode;
+
+-- Изменить запрос выше так, чтобы выводились только страны с населением более 3 млн человек.--
+
+SELECT CountryCode, SUM(Population) AS total_population
+FROM city
+GROUP BY CountryCode
+HAVING SUM(Population) > 3000000;
+
+-- Сколько всего записей в результате?-- 
+SELECT COUNT(*)
+FROM (
+    SELECT CountryCode
+    FROM city
+    GROUP BY CountryCode
+    HAVING SUM(Population) > 3000000
+) AS result;
+
+-- Поменять запрос выше так, чтобы в результате вместо кода страны выводилось ее название. 
+-- (Подсказка: нужен join таблиц city и country по полю CountryCode) --
+
+SELECT c.Name AS CountryName, SUM(ci.Population) AS total_population
+FROM city ci
+JOIN country c ON ci.CountryCode = c.Code
+GROUP BY c.Name
+HAVING SUM(ci.Population) > 3000000;
+
+-- Вывести количество городов в каждой стране (CountryCode, amount of cities).
+-- (Подсказка: запрос по таблице city и группировка по CountryCode) -- 
+
+SELECT CountryCode, COUNT(*) AS amount_of_cities
+FROM city
+GROUP BY CountryCode;
+
+-- Поменять запрос так, чтобы вместо кодов стран, было названия стран.  --
+
+SELECT c.Name AS CountryName, COUNT(*) AS amount_of_cities
+FROM city ci
+JOIN country c ON ci.CountryCode = c.Code
+GROUP BY c.Name;
+
+-- Поменять запрос так, чтобы выводилось среднее количество городов в стране. Подсказка: разделите задачу на
+ -- несколько подзадач. Например, сначала вывести код страны и количество городов в каждой стране. 
+ -- Затем сделать join получившегося результата с запросом, где высчитывается среднее от количества городов
+-- Потом добавить join, который добавит имена стран, вместо кода.  -- 
+
+SELECT c.Name AS CountryName, AVG(country_city_counts.amount_of_cities) AS average_cities_per_country
+FROM (
+    SELECT ci.CountryCode, COUNT(*) AS amount_of_cities
+    FROM city ci
+    GROUP BY ci.CountryCode
+) AS country_city_counts
+JOIN country c ON country_city_counts.CountryCode = c.Code
+GROUP BY c.Name;
