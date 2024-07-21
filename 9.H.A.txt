@@ -1,0 +1,49 @@
+ -- Вывести текущую дату и время. --
+    
+    SELECT NOW() AS current_datetime;
+    
+    -- Вывести текущий год и месяц --
+    SELECT 
+    YEAR(NOW()) AS current_year,
+    MONTH(NOW()) AS current_month;
+    
+    -- Вывести текущее время --
+    
+    SELECT CURRENT_TIME() AS current_time;
+    
+    -- Вывести название текущего дня недели --
+    
+    SELECT DAYNAME(NOW()) AS current_day_of_week;
+    
+   -- Вывести номер текущего месяца--
+    SELECT MONTH(NOW()) AS current_month_number;
+    
+    -- Вывести номер дня в дате “2020-03-18” --
+    
+    SELECT DAY('2020-03-18') AS day_number;
+    
+    use shop;
+    -- Определить какие из покупок были совершены апреле (4-й месяц)--
+    
+    SELECT *
+FROM ORDERS
+WHERE MONTH(ODATE) = 4;
+
+-- Определить количество покупок в 2022-м году--
+
+SELECT COUNT(*) AS total_purchases_2022
+FROM ORDERS
+WHERE YEAR(ODATE) = 2022;
+
+-- Определить, сколько покупок было совершено в каждый день. Отсортировать строки в порядке возрастания
+-- количества покупок. Вывести два поля - дату и количество покупок--
+SELECT ODATE AS purchase_date, COUNT(*) AS purchase_count
+FROM ORDERS
+GROUP BY ODATE
+ORDER BY purchase_count ASC;
+
+-- Определить среднюю стоимость покупок в апреле --
+
+SELECT AVG(amt) AS average_purchase_amount
+FROM ORDERS
+WHERE MONTH(ODATE) = 4;
