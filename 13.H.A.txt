@@ -1,0 +1,103 @@
+use 310524ptm_rubila;
+
+CREATE TABLE Customer (
+    CustomerID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Phone VARCHAR(20),
+    Email VARCHAR(100)
+);
+
+CREATE TABLE Driver (
+    DriverID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Phone VARCHAR(20),
+    LicenseNumber VARCHAR(50)
+);
+
+CREATE TABLE Tariff (
+    TariffID INT PRIMARY KEY,
+    Name VARCHAR(50)
+);
+
+CREATE TABLE Car (
+    CarID INT PRIMARY KEY,
+    Model VARCHAR(100),
+    LicensePlate VARCHAR(20),
+    TariffID INT,
+    FOREIGN KEY (TariffID) REFERENCES Tariff(TariffID)
+);
+
+CREATE TABLE Shift (
+    ShiftID INT PRIMARY KEY,
+    DriverID INT,
+    CarID INT,
+    StartTime DATETIME,
+    EndTime DATETIME,
+    FOREIGN KEY (DriverID) REFERENCES Driver(DriverID),
+    FOREIGN KEY (CarID) REFERENCES Car(CarID)
+);
+
+CREATE TABLE `Order` (
+    OrderID INT PRIMARY KEY,
+    CustomerID INT,
+    DriverID INT,
+    TariffID INT,
+    SurgeCoefficient FLOAT,
+    OrderDate DATETIME,
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    FOREIGN KEY (DriverID) REFERENCES Driver(DriverID),
+    FOREIGN KEY (TariffID) REFERENCES Tariff(TariffID)
+);
+
+CREATE TABLE ReviewType (
+    ReviewTypeID INT PRIMARY KEY,
+    Description VARCHAR(100)
+);
+
+CREATE TABLE Review (
+    ReviewID INT PRIMARY KEY,
+    OrderID INT,
+    ReviewTypeID INT,
+    Rating INT,
+    Comment TEXT,
+    FOREIGN KEY (OrderID) REFERENCES `Order`(OrderID),
+    FOREIGN KEY (ReviewTypeID) REFERENCES ReviewType(ReviewTypeID)
+);
+
+INSERT INTO Customer (CustomerID, Name, Phone, Email) VALUES
+(1, 'Иван Иванов', '61234567', 'ivanov@example.com'),
+(2, 'Мария Смирнова', '161234568', 'smirnova@example.com'),
+(3, 'Алексей Кузнецов', '161234569', 'kuznetsov@example.com');
+
+INSERT INTO Driver (DriverID, Name, Phone, LicenseNumber) VALUES
+(1, 'Петр Петров', '161234570', 'A1234567'),
+(2, 'Сергей Сидоров', '9161234571', 'B7654321');
+
+INSERT INTO Tariff (TariffID, Name) VALUES
+(1, 'Эконом'),
+(2, 'Премиум');
+
+INSERT INTO Car (CarID, Model, LicensePlate, TariffID) VALUES
+(1, 'Бобик обыкновенный', 'A123BC77', 1),
+(2, 'Бобик люкс', 'B456DE77', 2);
+
+INSERT INTO Shift (ShiftID, DriverID, CarID, StartTime, EndTime) VALUES
+(1, 1, 1, '2024-07-01 08:00:00', '2024-07-01 20:00:00'),
+(2, 2, 2, '2024-07-01 08:00:00', '2024-07-01 20:00:00');
+
+INSERT INTO `Order` (OrderID, CustomerID, DriverID, TariffID, SurgeCoefficient, OrderDate) VALUES
+(1, 1, 1, 1, 1.0, '2024-07-01 09:00:00'),
+(2, 2, 2, 2, 1.5, '2024-07-01 10:00:00');
+
+INSERT INTO ReviewType (ReviewTypeID, Description) VALUES
+(1, 'Положительный'),
+(2, 'Отрицательный');
+
+INSERT INTO Review (ReviewID, OrderID, ReviewTypeID, Rating, Comment) VALUES
+(1, 1, 1, 5, 'Отличная поездка!'),
+(2, 2, 2, 2, 'Машина не приехала вовремя.');
+
+
+
+
+
