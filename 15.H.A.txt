@@ -1,0 +1,37 @@
+// Подключение к базе данных imdb
+use imdb;
+
+// Задача 1: Используя оператор $size, найдите фильмы, написанные 3 сценаристами (writers) и снятые 2 режиссерами (directors)
+db.imdb.find({
+    writers: { $size: 3 },
+    directors: { $size: 2 }
+});
+
+// Переключение на базу данных bookings
+use bookings;
+
+// Задача 2: Найдите адрес нахождения автомобиля с vin WME4530421Y135045 по самой последней дате (и времени) final_date
+db.bookings.find(
+    { vin: "WME4530421Y135045" },
+    { address: 1, final_date: 1 }
+).sort({ final_date: -1 }).limit(1);
+
+// Задача 3: Подсчитайте, у скольких автомобилей при окончании аренды закончилось топливо (final_fuel)
+db.bookings.countDocuments({
+    final_fuel: 0
+});
+
+// Задача 4: Найдите номерной знак и vin номер авто, с самым большим километражом (distance)
+db.bookings.find(
+    {},
+    { license_plate: 1, vin: 1, distance: 1 }
+).sort({ distance: -1 }).limit(1);
+
+// Переключение обратно на базу данных imdb
+use imdb;
+
+// Задача 5: Найдите фильм с участием "Brad Pitt" с самым высоким рейтингом (imdb.rating)
+db.imdb.find(
+    { "actors": "Brad Pitt" },
+    { title: 1, "imdb.rating": 1 }
+).sort({ "imdb.rating": -1 }).limit(1);
