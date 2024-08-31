@@ -1,0 +1,92 @@
+Из коллекции sample_airbnb.listingsAndReviews найдите среднюю цену за сутки проживания на Гавайских островах. 
+
+Островов несколько, поэтому либо используем {'address.location': {$geoWithin: { $centerSphere …. 
+
+Либо перечисляем все возможные острова в поле market
+
+
+Подсказка - нам понадобится 2 этапа агрегации : $match и $group
+
+
+use sample_airbnb;
+
+
+db.listingsAndReviews.aggregate([
+  { 
+    $match: { 
+      "address.location": { 
+        $geoWithin: { 
+          $centerSphere: [ [ -156.3319, 20.7967 ], 400 / 6378.1 ]
+        } 
+      }
+    }
+  },
+  { 
+    $group: { 
+      _id: null, 
+      average_price: { $avg: "$price" } 
+    } 
+  }
+]);
+
+  _id: null,
+  average_price: Decimal128('231.4853420195439739413680781758958')
+
+
+
+
+
+
+
+2.Подсчитайте в коллекции sample_mflix.movies, сколько фильмов имеют imdb рейтинг выше 8 и выходили в период с 2015 до 2023 года (используем year) Какой из них имеет самый высокий рейтинг ?
+
+
+
+use sample_mflix;
+
+use sample_mflix;
+
+db.movies.aggregate([
+  { 
+    $match: { 
+      "imdb.rating": { $gt: 8 }, 
+      "year": { $gte: 2015, $lte: 2023 } 
+    } 
+  },
+  { 
+    $group: { 
+      _id: null, 
+      total_movies: { $sum: 1 }, 
+      highest_rating: { $max: "$imdb.rating" }
+    } 
+  },
+  {
+    $lookup: {
+      from: "movies",
+      let: { maxRating: "$highest_rating" },
+      pipeline: [
+        { $match: { $expr: { $eq: [ "$imdb.rating", "$$maxRating" ] } } },
+        { $project: { title: 1, imdb: 1, _id: 0 } }
+      ],
+      as: "highest_rated_movie"
+    }
+  },
+  {
+    $project: {
+      total_movies: 1,
+      highest_rating: 1,
+      highest_rated_movie: { $arrayElemAt: [ "$highest_rated_movie", 0 ] }
+    }
+  }
+]);
+
+
+_id: null,
+  total_movies: 53,
+  highest_rating: 9.4,
+  highest_rated_movie: {
+    title: 'The Civil War',
+    imdb: {
+      rating: 9.4,
+      votes: 4625,
+      id: 98769
