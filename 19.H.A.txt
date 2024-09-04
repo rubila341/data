@@ -1,0 +1,167 @@
+Из базы данных ich работаем с коллекцией ich.Spotify_Youtube:
+
+
+Найдите трек с наивысшими показателями  Danceability и Energy. 
+
+db.Spotify_Youtube.find().sort({ Danceability: -1, Energy: -1 }).limit(1)
+
+{
+  _id: ObjectId('65b21e65fdad676b321884ce'),
+  '': 750,
+  Artist: 'Timbaland',
+  Url_spotify: 'https://open.spotify.com/artist/5Y5TRrQiqgUO4S36tzjIRZ',
+  Track: 'Give It To Me',
+  Album: 'Shock Value',
+  Album_type: 'album',
+  Uri: 'spotify:track:0wbDgMuAoy7O7pL3a69uZx',
+  Danceability: 0.975,
+  Energy: 0.711,
+  Key: 8,
+  Loudness: -3.904,
+  Speechiness: 0.0632,
+  Acousticness: 0.168,
+  Instrumentalness: 0.000552,
+  Liveness: 0.0799,
+  Valence: 0.815,
+  Tempo: 110.621,
+  Duration_ms: 234027,
+  Url_youtube: 'https://www.youtube.com/watch?v=RgoiSJ23cSc',
+  Title: 'Timbaland - Give It To Me (Official Music Video) ft. Nelly Furtado, Justin Timberlake',
+  Channel: 'TimbalandVEVO',
+  Views: 133147140,
+  Likes: 760396,
+  Comments: 17486,
+  Description: `Official music video for Timbaland's "Give It To Me" ft. Nelly Furtado & Justin Timberlake.\n` +
+    '\n' +
+    'Watch more Timbaland music videos: https://www.youtube.com/watch?v=U5rLz5AZBIA&list=OLAK5uy_nPVy9EUuWUTIBgktKwmJw_O0d3j9q7xeE\n' +
+    '\n' +
+    'Follow Timbaland:\n' +
+    'Facebook: https://www.facebook.com/Timbaland\n' +
+    'Twitter: https://twitter.com/Timbaland\n' +
+    'Instagram: https://www.instagram.com/timbaland\n' +
+    'SoundCloud: https://soundcloud.com/timbaland\n' +
+    'Website: https://www.timbalandmusic.com/\n' +
+    '\n' +
+    '#Timbaland #GiveItToMe #NellyFurtado #JustinTimberlake\n' +
+    '\n' +
+    'Music video by Timbaland performing Give It To Me. (C) 2007 Blackground Records/Interscope Records',
+  Licensed: true,
+  official_video: true,
+  Stream: 165286007
+}
+
+
+
+
+
+У какого трека (но не compilation) самая большая длительность? 
+
+
+db.Spotify_Youtube.find({ Album_type: { $ne: "compilation" } }).sort({ Duration_ms: -1 }).limit(1)
+
+{
+  _id: ObjectId('65b21e68fdad676b3218a671'),
+  '': 9361,
+  Artist: 'Ocean Waves For Sleep',
+  Url_spotify: 'https://open.spotify.com/artist/2CgVSpL4tfbUuHmTGS7wF3',
+  Track: 'Ocean Waves for Sleep',
+  Album: 'Ocean Waves',
+  Album_type: 'single',
+  Uri: 'spotify:track:1saXdvEAafdRzUphXBzSHg',
+  Danceability: 0.0797,
+  Energy: 0.995,
+  Key: 1,
+  Loudness: -17.379,
+  Speechiness: 0.0612,
+  Acousticness: 0.932,
+  Instrumentalness: 0.562,
+  Liveness: 0.31,
+  Valence: 0.00001,
+  Tempo: 84.788,
+  Duration_ms: 4120258,
+  Url_youtube: 'https://www.youtube.com/watch?v=bn9F19Hi1Lk',
+  Title: 'Sleep For 11 Hours Straight, High Quality Stereo Ocean Sounds Of Rolling Waves For Deep Sleeping',
+  Channel: 'Naturaleza Viva - Sonidos y Paisajes Increíbles',
+  Views: 28534997,
+  Likes: 163634,
+  Comments: 6499,
+  Description: 'A wonderful experience of sleeping beside the ocean with waves rolling next to your bed. High quality stereo ocean sounds, better than any sleep music will provide a great relaxing atmosphere for deep sleeping. All you need to do is playing this video and listen to the waves. All of you sleepyheads will enjoy the full 11 hours of sleep, just make yourself comfortable in bed, close your eyes and think about this place. You may also play any sleep music you like or just leave the sounds of the waves. Sweet dreams!\n' +
+    '\n' +
+    'All the rights belong to Naturaleza Viva and LoungeV Studio.',
+  Licensed: true,
+  official_video: true,
+  Stream: 54946119
+}
+
+
+
+В каком одном альбоме самое большее количество треков? 
+
+
+db.Spotify_Youtube.aggregate([
+  { $group: { _id: "$Album", track_count: { $sum: 1 } } },
+  { $sort: { track_count: -1 } },
+  { $limit: 1 }
+])
+
+{
+  _id: 'Greatest Hits',
+  track_count: 30
+}
+
+
+Сколько просмотров видео на youtube у трека с самым высоким количеством прослушиваний на spotify (Stream)? 
+
+
+db.Spotify_Youtube.find({}, { Views: 1, _id: 0 }).sort({ Stream: -1 }).limit(1)
+
+
+{
+  Views: 674164500
+}
+
+
+
+Экспортируйте 20 самых популярных (прослушивания или просмотры) треков по версиям youtube и spotify и импортируйте в базу ich_edit их с именами top20youtube и top20spotify, и добавьте им свои имена для уникальности.
+
+
+
+
+
+
+const top20YouTubeTracks = db.Spotify_Youtube.aggregate([
+  { $match: { Url_youtube: { $exists: true } } },
+  { $sort: { Views: -1 } },
+  { $limit: 20 }
+]).toArray();
+
+top20YouTubeTracks.forEach(track => {
+  track.Added_By = "rubila341";  
+  db.top20youtube.insertOne(track);
+});
+
+
+
+
+const top20SpotifyTracks = db.Spotify_Youtube.aggregate([
+  { $match: { Stream: { $exists: true } } },
+  { $sort: { Stream: -1 } },
+  { $limit: 20 }
+]).toArray();
+
+top20SpotifyTracks.forEach(track => {
+  track.Added_By = "rubila341";  
+  db.top20spotify.insertOne(track);
+});
+
+
+db.top20youtube.find().pretty()
+db.top20spotify.find().pretty()
+
+для просмотра содержимого
+
+
+
+
+
+
