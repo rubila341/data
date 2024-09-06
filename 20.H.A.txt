@@ -1,0 +1,87 @@
+1) Работаем с базой данных sakila.
+
+Вывести названия фильмов с расшифровкой рейтинга для каждого. Рейтинги описаны здесь. В таблице film хранятся годы рейтингов. Нужно воспользоваться оператором case чтобы определить для каждого кода условие, по которому будет выводится его развернутое описание (1 предложение). 
+
+SELECT 
+    title,
+    CASE
+        WHEN rating = 'G' THEN 'General Audiences - Suitable for all ages'
+        WHEN rating = 'PG' THEN 'Parental Guidance - Some material may not be suitable for children'
+        WHEN rating = 'PG-13' THEN 'Parents Strongly Cautioned - Some material may be inappropriate for children under 13'
+        WHEN rating = 'R' THEN 'Restricted - Restricted to viewers above 17 or with adult guidance'
+        WHEN rating = 'NC-17' THEN 'Adults Only - No one 17 and under admitted'
+        ELSE 'Unrated'
+    END AS rating_description
+FROM sakila.film;
+
+
+
+2) Выведите количество фильмов в каждой категории рейтинга. Используем group by. 
+
+SELECT 
+    rating,
+    COUNT(*) AS number_of_films
+FROM sakila.film
+
+
+3) Используя оконные функции и partition by, выведите список названий фильмов, рейтинг и количество фильмов в каждом рейтинге. Объясните, чем отличаются результаты предыдущего запроса и запроса в этой задаче. 
+
+SELECT 
+    title,
+    rating,
+    COUNT(*) OVER (PARTITION BY rating) AS films_in_rating
+FROM sakila.film;
+
+
+Запрос с GROUP BY: грегирует данные. Для каждой категории рейтинга выводится только одна строка с рейтингом и количеством фильмов
+
+Запрос с оконной функцией  каждая строка представляет собой отдельный фильм. в каждой строке будет указано количество фильмов в том же рейтинге (без группировки)
+
+
+4) Изучите таблицы payment и customer. Выведите список всех платежей с указанием имени и фамилии каждого заказчика, датой платежа и суммой.
+
+
+SELECT 
+    c.first_name, 
+    c.last_name, 
+    p.payment_date, 
+    p.amount
+FROM sakila.payment p
+JOIN sakila.customer c ON p.customer_id = c.customer_id;
+
+
+5) Поменяйте предыдущий запрос так, чтобы дата выводилась в формате “число, название месяца, год” (без времени).
+
+SELECT 
+    c.first_name, 
+    c.last_name, 
+    DATE_FORMAT(p.payment_date, '%d %M %Y') AS payment_date, 
+    p.amount
+FROM sakila.payment p
+JOIN sakila.customer c ON p.customer_id = c.customer_id;
+
+
+
+
+Найти рестораны на 'Staten Island' в названии которых есть слово pizza (Pizza и PIZZA тоже считаются)
+
+[
+  {
+    $match: {
+      borough: "Staten Island",
+      name: { $regex: /pizza/i }
+    }
+  }
+]
+
+
+Выведите названия 5 лучших по среднему значению отзывов ( $avg: "$grades.score")
+
+
+[
+  { $unwind: "$grades" },
+  { $group: { _id: "$name", avgScore: { $avg: "$grades.score" } } },
+  { $sort: { avgScore: -1 } },
+  { $limit: 5 },
+  { $project: { _id: 0, name: "$_id", avgScore: 1 } }
+]
